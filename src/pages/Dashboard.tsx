@@ -46,7 +46,12 @@ const Dashboard = () => {
   const handleUpdateBook = async (data: BookFormData, imageFile: File | null) => {
     if (!editingBook) return;
     try {
-      await updateBook(editingBook.id, data, imageFile || undefined);
+      await updateBook(
+        editingBook.id, 
+        data, 
+        editingBook.imageUrl, // Pass the existing imageUrl
+        imageFile || undefined // Pass the new image file if it exists
+      );
       setEditingBook(null);
       loadUserBooks();
     } catch (error) {
