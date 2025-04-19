@@ -11,6 +11,6 @@ export interface ExchangeRequest {
   bookImageUrl?: string;
   status: ExchangeStatus;
   message?: string;
-  createdAt: Date;
-  updatedAt?: Date;
+  createdAt: Date | { seconds: number; nanoseconds: number };
+  updatedAt?: Date | { seconds: number; nanoseconds: number };
 }

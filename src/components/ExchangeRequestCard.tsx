@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const ExchangeRequestCard = ({ request, type, onRefresh }: ExchangeRequestCardPr
   const [otherUserName, setOtherUserName] = useState<string | null>(null);
   
   // Get the other user's name based on the request type
-  useState(() => {
+  useEffect(() => {
     const loadUserName = async () => {
       try {
         const userId = type === "sent" ? request.receiverId : request.senderId;
@@ -35,7 +35,7 @@ const ExchangeRequestCard = ({ request, type, onRefresh }: ExchangeRequestCardPr
     };
     
     loadUserName();
-  });
+  }, [request.receiverId, request.senderId, type]);
   
   const handleStatusUpdate = async (status: "accepted" | "rejected") => {
     if (!user) return;
@@ -82,6 +82,15 @@ const ExchangeRequestCard = ({ request, type, onRefresh }: ExchangeRequestCardPr
     }
   };
   
+  const formatDate = (date: Date | any) => {
+    // Check if the date is a Firestore timestamp (has seconds property)
+    if (date && typeof date === 'object' && 'seconds' in date) {
+      return new Date(date.seconds * 1000).toLocaleDateString();
+    }
+    // Handle regular Date objects
+    return date instanceof Date ? date.toLocaleDateString() : 'Unknown date';
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -112,7 +121,7 @@ const ExchangeRequestCard = ({ request, type, onRefresh }: ExchangeRequestCardPr
               </div>
             )}
             <p className="text-xs text-gray-500 mt-2">
-              {new Date(request.createdAt.seconds * 1000).toLocaleDateString()}
+              {formatDate(request.createdAt)}
             </p>
           </div>
         </div>
