@@ -9,8 +9,10 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { useAuth } from "./contexts/AuthContext";
+import Bookworm from "./components/Bookworm";
 
 const queryClient = new QueryClient();
 
@@ -45,8 +47,25 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/:userId"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <Bookworm />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

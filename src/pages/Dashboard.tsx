@@ -10,6 +10,9 @@ import BookForm from "@/components/BookForm";
 import BookCard from "@/components/BookCard";
 import { Book, BookFormData } from "@/types/book";
 import { uploadBook, getUserBooks, deleteBook, updateBook } from "@/services/bookService";
+import { countPendingExchangeRequests } from "@/services/exchangeService";
+import { Badge } from "@/components/ui/badge";
+import { User } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -17,9 +20,13 @@ const Dashboard = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isAddingBook, setIsAddingBook] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   useEffect(() => {
-    loadUserBooks();
+    if (user) {
+      loadUserBooks();
+      loadPendingRequests();
+    }
   }, [user]);
 
   const loadUserBooks = async () => {
@@ -29,6 +36,16 @@ const Dashboard = () => {
       setBooks(userBooks);
     } catch (error) {
       toast.error('Failed to load books');
+    }
+  };
+
+  const loadPendingRequests = async () => {
+    if (!user) return;
+    try {
+      const count = await countPendingExchangeRequests(user.uid);
+      setPendingRequests(count);
+    } catch (error) {
+      console.error('Failed to load pending requests count:', error);
     }
   };
 
@@ -84,7 +101,20 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Welcome to Your Dashboard</h1>
-            <Button onClick={handleSignOut}>Sign Out</Button>
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => navigate('/profile')}
+              >
+                <User size={16} />
+                Profile
+                {pendingRequests > 0 && (
+                  <Badge variant="destructive">{pendingRequests}</Badge>
+                )}
+              </Button>
+              <Button onClick={handleSignOut}>Sign Out</Button>
+            </div>
           </div>
 
           <div className="mb-6">
