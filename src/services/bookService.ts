@@ -1,4 +1,3 @@
-
 import { db, storage } from '@/lib/firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, where, query } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -23,14 +22,18 @@ export const uploadBook = async (userId: string, bookData: BookFormData, imageFi
   return bookRef.id;
 };
 
-export const updateBook = async (bookId: string, bookData: Partial<BookFormData>, newImageFile?: File): Promise<void> => {
+export const updateBook = async (bookId: string, bookData: Partial<BookFormData>, imageUrl?: string, newImageFile?: File): Promise<void> => {
   const bookRef = doc(db, BOOKS_COLLECTION, bookId);
-  const updateData = { ...bookData };
+  const updateData: any = { ...bookData };
 
   if (newImageFile) {
-    const imageRef = ref(storage, `books/${bookData.userId}/${Date.now()}-${newImageFile.name}`);
-    await uploadBytes(imageRef, newImageFile);
-    updateData.imageUrl = await getDownloadURL(imageRef);
+    // If there's a new image file, upload it and get the new URL
+    const storageRef = ref(storage, `books/${Date.now()}-${newImageFile.name}`);
+    await uploadBytes(storageRef, newImageFile);
+    updateData.imageUrl = await getDownloadURL(storageRef);
+  } else if (imageUrl) {
+    // If there's an existing image URL but no new file, keep the existing URL
+    updateData.imageUrl = imageUrl;
   }
 
   await updateDoc(bookRef, updateData);
