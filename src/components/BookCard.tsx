@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Book } from '@/types/book';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createExchangeRequest } from '@/services/exchangeService';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import BookRecommendations from './BookRecommendations';
 
 interface BookCardProps {
   book: Book;
@@ -83,6 +83,7 @@ const BookCard = ({ book, onEdit, onDelete, isOwner = false }: BookCardProps) =>
           <p className="text-sm">Condition: {book.condition}</p>
           <p className="text-lg font-bold">${book.price.toFixed(2)}</p>
         </div>
+        {!isOwner && <BookRecommendations currentBook={book} />}
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-2">
         <p className="text-sm text-muted-foreground truncate">{book.description}</p>

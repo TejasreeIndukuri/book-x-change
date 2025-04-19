@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { BookFormData, BookCondition } from '@/types/book';
 import { toast } from 'sonner';
+import PriceSuggestion from './PriceSuggestion';
 
 interface BookFormProps {
   initialData?: Partial<BookFormData>;
@@ -19,6 +19,8 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
     defaultValues: initialData
   });
   const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState(initialData?.genre || '');
+  const [selectedCondition, setSelectedCondition] = useState<BookCondition>(initialData?.condition || 'good');
 
   const conditions: BookCondition[] = ['new', 'like-new', 'good', 'fair', 'poor'];
 
@@ -53,6 +55,7 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
         <Input 
           {...register('genre', { required: 'Genre is required' })}
           placeholder="Genre"
+          onChange={(e) => setSelectedGenre(e.target.value)}
         />
         {errors.genre && <p className="text-red-500 text-sm">{errors.genre.message}</p>}
       </div>
@@ -60,6 +63,7 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
       <select 
         {...register('condition')}
         className="w-full rounded-md border p-2"
+        onChange={(e) => setSelectedCondition(e.target.value as BookCondition)}
       >
         {conditions.map((condition) => (
           <option key={condition} value={condition}>
@@ -67,6 +71,13 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
           </option>
         ))}
       </select>
+
+      {selectedGenre && selectedCondition && (
+        <PriceSuggestion
+          genre={selectedGenre}
+          condition={selectedCondition}
+        />
+      )}
 
       <div>
         <Input 
