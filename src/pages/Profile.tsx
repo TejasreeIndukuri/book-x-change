@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,8 +35,8 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState<File | null>(null);
   
   // Check if viewing own profile
-  const isOwnProfile = user?.uid === (userId || user?.uid);
-  const profileId = userId || (user?.uid || "");
+  const isOwnProfile = user?.id === (userId || user?.id);
+  const profileId = userId || (user?.id || "");
   
   useEffect(() => {
     loadProfileData();
@@ -79,7 +78,7 @@ const Profile = () => {
     
     try {
       await upsertUserProfile(
-        user.uid,
+        user.id,
         {
           displayName,
           bio,

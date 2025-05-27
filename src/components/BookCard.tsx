@@ -32,14 +32,14 @@ const BookCard = ({ book, onEdit, onDelete, isOwner = false }: BookCardProps) =>
       return navigate('/login');
     }
 
-    if (user.uid === book.userId) {
+    if (user.id === book.userId) {
       toast.error('You cannot request your own book');
       return;
     }
 
     setIsLoading(true);
     try {
-      await createExchangeRequest(user.uid, book.userId, book.id, message);
+      await createExchangeRequest(user.id, book.userId, book.id, message);
       toast.success('Exchange request sent successfully');
       setIsExchangeOpen(false);
       setMessage('');
@@ -98,7 +98,7 @@ const BookCard = ({ book, onEdit, onDelete, isOwner = false }: BookCardProps) =>
             View Owner
           </Button>
           
-          {user && user.uid !== book.userId && (
+          {user && user.id !== book.userId && (
             <Dialog open={isExchangeOpen} onOpenChange={setIsExchangeOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">

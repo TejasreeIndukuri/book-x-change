@@ -31,7 +31,7 @@ const Dashboard = () => {
   const loadUserBooks = async () => {
     if (!user) return;
     try {
-      const userBooks = await getUserBooks(user.uid);
+      const userBooks = await getUserBooks(user.id);
       setBooks(userBooks);
     } catch (error) {
       toast.error('Failed to load books');
@@ -41,7 +41,7 @@ const Dashboard = () => {
   const loadPendingRequests = async () => {
     if (!user) return;
     try {
-      const count = await countPendingExchangeRequests(user.uid);
+      const count = await countPendingExchangeRequests(user.id);
       setPendingRequests(count);
     } catch (error) {
       console.error('Failed to load pending requests count:', error);
@@ -51,7 +51,7 @@ const Dashboard = () => {
   const handleAddBook = async (data: BookFormData, imageFile: File | null) => {
     if (!user || !imageFile) return;
     try {
-      await uploadBook(user.uid, data, imageFile);
+      await uploadBook(user.id, data, imageFile);
       setIsAddingBook(false);
       loadUserBooks();
     } catch (error) {
