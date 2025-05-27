@@ -1,8 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -88,8 +87,12 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
-      navigate('/login');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error('Failed to sign out');
+      } else {
+        navigate('/login');
+      }
     } catch (error) {
       toast.error('Failed to sign out');
     }

@@ -1,32 +1,69 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from 'react';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard');
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Account created successfully! Please check your email to verify your account.');
+        navigate('/login');
+      }
     } catch (error) {
-      toast.error('Failed to create account');
+      toast.error('An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignup = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate('/dashboard');
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) {
+        toast.error(error.message);
+      }
     } catch (error) {
       toast.error('Failed to sign up with Google');
     }
@@ -42,11 +79,22 @@ const Signup = () => {
           <form onSubmit={handleEmailSignup} className="space-y-4">
             <div className="space-y-2">
               <Input
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -56,10 +104,12 @@ const Signup = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
+                minLength={6}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Sign Up
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </Button>
           </form>
           <div className="mt-4">
@@ -68,6 +118,7 @@ const Signup = () => {
               variant="outline"
               className="w-full"
               onClick={handleGoogleSignup}
+              disabled={loading}
             >
               Sign up with Google
             </Button>
