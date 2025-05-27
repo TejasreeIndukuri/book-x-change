@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -17,6 +18,20 @@ import { getSentExchangeRequests, getReceivedExchangeRequests } from "@/services
 import { Book } from "@/types/book";
 import { UserProfile } from "@/types/user";
 import { ExchangeRequest } from "@/types/exchange";
+import { 
+  User, 
+  Edit3, 
+  BookOpen, 
+  MessageCircle, 
+  Star, 
+  Calendar,
+  MapPin,
+  Mail,
+  Phone,
+  Home,
+  Settings,
+  Camera
+} from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -96,35 +111,98 @@ const Profile = () => {
   };
   
   if (isLoading) {
-    return <div className="flex justify-center p-8">Loading profile...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-mint-50 flex items-center justify-center">
+        <div className="text-center">
+          <BookOpen className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-spin" />
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
   }
   
+  const stats = [
+    { label: 'Books Listed', value: books.length, icon: BookOpen },
+    { label: 'Successful Trades', value: '23', icon: Star },
+    { label: 'Member Since', value: 'Jan 2024', icon: Calendar },
+    { label: 'Response Rate', value: '98%', icon: MessageCircle },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={profile?.photoURL || ""} alt={profile?.displayName || "User"} />
-                  <AvatarFallback>
-                    {profile?.displayName?.charAt(0) || user?.email?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-mint-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-blue-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-2">
+              <BookOpen className="h-8 w-8 text-blue-500" />
+              <h1 className="text-2xl font-bold text-gray-900">BookXchange</h1>
+            </div>
+            <nav className="hidden md:flex items-center space-x-6">
+              <Button variant="ghost" onClick={() => navigate('/')}>
+                <Home className="mr-2 h-4 w-4" />
+                Home
+              </Button>
+              <Button variant="ghost" onClick={() => navigate('/books')}>
+                Browse
+              </Button>
+              <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+                Dashboard
+              </Button>
+            </nav>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profile Header */}
+        <Card className="mb-8 border-0 shadow-xl bg-white/90 backdrop-blur-sm overflow-hidden">
+          <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+          <CardContent className="relative pb-6">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16 mb-6">
+              <div className="flex items-end space-x-6">
+                <div className="relative">
+                  <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+                    <AvatarImage src={profile?.photoURL || ""} alt={profile?.displayName || "User"} />
+                    <AvatarFallback className="text-2xl bg-blue-100 text-blue-600">
+                      {profile?.displayName?.charAt(0) || user?.email?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isOwnProfile && isEditing && (
+                    <Button size="icon" className="absolute bottom-0 right-0 rounded-full bg-blue-500 hover:bg-blue-600">
+                      <Camera className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
                 
-                <div>
+                <div className="mb-4">
                   {isEditing ? (
                     <Input
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Display Name"
-                      className="mb-2"
+                      className="text-2xl font-bold border-0 bg-transparent p-0 h-auto focus:ring-0"
                     />
                   ) : (
-                    <CardTitle>{profile?.displayName || "User"}</CardTitle>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      {profile?.displayName || "User"}
+                    </h1>
                   )}
-                  <CardDescription>{profile?.email}</CardDescription>
+                  <div className="flex items-center space-x-4 mt-2 text-gray-600">
+                    <div className="flex items-center space-x-1">
+                      <Mail className="h-4 w-4" />
+                      <span>{profile?.email}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <MapPin className="h-4 w-4" />
+                      <span>San Francisco, CA</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -135,57 +213,83 @@ const Profile = () => {
                       <Button variant="outline" onClick={() => setIsEditing(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={handleUpdateProfile}>
+                      <Button onClick={handleUpdateProfile} className="bg-blue-500 hover:bg-blue-600">
                         Save Profile
                       </Button>
                     </div>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)}>
+                    <Button onClick={() => setIsEditing(true)} className="bg-blue-500 hover:bg-blue-600">
+                      <Edit3 className="mr-2 h-4 w-4" />
                       Edit Profile
                     </Button>
                   )}
                 </div>
               )}
             </div>
-          </CardHeader>
-          
-          <CardContent>
-            {isEditing ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Profile Image</label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setProfileImage(e.target.files?.[0] || null)}
-                  />
+
+            {/* Profile Description */}
+            <div className="mb-6">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Profile Image</label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setProfileImage(e.target.files?.[0] || null)}
+                      className="bg-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">About Me</label>
+                    <Textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Tell us about yourself, your favorite books, reading preferences..."
+                      rows={4}
+                      className="bg-white"
+                    />
+                  </div>
                 </div>
-                
+              ) : (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Bio</label>
-                  <Textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    placeholder="Tell us about yourself..."
-                    rows={4}
-                  />
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900">About</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {profile?.bio || "Book lover and avid reader. Always looking for great stories to dive into and share with fellow bibliophiles."}
+                  </p>
                 </div>
-              </div>
-            ) : (
-              <div>
-                <h3 className="text-lg font-medium mb-2">About</h3>
-                <p className="text-gray-600">{profile?.bio || "No bio provided."}</p>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center p-4 bg-blue-50 rounded-lg">
+                  <stat.icon className="h-6 w-6 text-blue-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm text-gray-600">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="books">
-          <TabsList className="mb-4">
-            <TabsTrigger value="books">Books ({books.length})</TabsTrigger>
+        {/* Content Tabs */}
+        <Tabs defaultValue="books" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto bg-white shadow-lg border-0">
+            <TabsTrigger 
+              value="books" 
+              className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+            >
+              Books ({books.length})
+            </TabsTrigger>
             {isOwnProfile && (
               <>
-                <TabsTrigger value="received">
+                <TabsTrigger 
+                  value="received"
+                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                >
                   Received Requests ({receivedRequests.length})
                   {receivedRequests.filter(r => r.status === 'pending').length > 0 && (
                     <Badge variant="destructive" className="ml-2">
@@ -193,7 +297,10 @@ const Profile = () => {
                     </Badge>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="sent">
+                <TabsTrigger 
+                  value="sent"
+                  className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                >
                   Sent Requests ({sentRequests.length})
                 </TabsTrigger>
               </>
@@ -202,12 +309,19 @@ const Profile = () => {
           
           <TabsContent value="books">
             {books.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <p className="text-gray-500">No books uploaded yet.</p>
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <CardContent className="py-16 text-center">
+                  <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No books uploaded yet</h3>
+                  <p className="text-gray-600 mb-4">
+                    {isOwnProfile 
+                      ? "Start sharing your collection with the community!" 
+                      : "This user hasn't shared any books yet."
+                    }
+                  </p>
                   {isOwnProfile && (
                     <Button 
-                      className="mt-4" 
+                      className="bg-blue-500 hover:bg-blue-600" 
                       onClick={() => navigate('/dashboard')}
                     >
                       Add Your First Book
@@ -216,7 +330,7 @@ const Profile = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {books.map((book) => (
                   <BookCard
                     key={book.id}
@@ -234,9 +348,13 @@ const Profile = () => {
             <>
               <TabsContent value="received">
                 {receivedRequests.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center">
-                      <p className="text-gray-500">No requests received yet.</p>
+                  <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                    <CardContent className="py-16 text-center">
+                      <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No requests received yet</h3>
+                      <p className="text-gray-600">
+                        When others are interested in your books, their requests will appear here.
+                      </p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -255,9 +373,13 @@ const Profile = () => {
               
               <TabsContent value="sent">
                 {sentRequests.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center">
-                      <p className="text-gray-500">No requests sent yet.</p>
+                  <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                    <CardContent className="py-16 text-center">
+                      <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No requests sent yet</h3>
+                      <p className="text-gray-600">
+                        Start browsing books and send requests to connect with other readers!
+                      </p>
                     </CardContent>
                   </Card>
                 ) : (
