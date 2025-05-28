@@ -167,4 +167,3 @@ const BookCard = ({ book, onEdit, onDelete, isOwner = false }: BookCardProps) =>
 };
 
 export default BookCard;
-
