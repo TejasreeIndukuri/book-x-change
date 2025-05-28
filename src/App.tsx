@@ -12,7 +12,6 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Books from "./pages/Books";
-import BookDetail from "./pages/BookDetail";
 import NotFound from "./pages/NotFound";
 import { useAuth } from "./contexts/AuthContext";
 import Bookworm from "./components/Bookworm";
@@ -44,7 +43,6 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/about" element={<About />} />
             <Route path="/books" element={<Books />} />
-            <Route path="/books/:id" element={<BookDetail />} />
             <Route
               path="/dashboard"
               element={

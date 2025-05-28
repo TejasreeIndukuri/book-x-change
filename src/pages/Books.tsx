@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -104,7 +105,7 @@ const Books = () => {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-blue-500" />
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">BookXchange</h1>
+              <h1 className="text-2xl font-bold text-gray-900">BookXchange</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <Button variant="ghost" onClick={() => navigate('/')}>
@@ -121,12 +122,12 @@ const Books = () => {
             <div className="flex items-center space-x-3">
               {user ? (
                 <>
-                  <Button variant="ghost" onClick={() => navigate('/dashboard')} className="hidden sm:flex">
+                  <Button variant="ghost" onClick={() => navigate('/dashboard')}>
                     Dashboard
                   </Button>
                   <Button variant="ghost" onClick={() => navigate('/profile')}>
                     <User className="mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Profile</span>
+                    Profile
                   </Button>
                 </>
               ) : (
@@ -152,9 +153,12 @@ const Books = () => {
               placeholder="Search by title, author, or ISBN..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-4 py-4 text-lg rounded-full border-2 border-blue-200 focus:border-blue-400"
+              className="pl-12 pr-20 py-4 text-lg rounded-full border-2 border-blue-200 focus:border-blue-400"
             />
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+            <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-blue-500 hover:bg-blue-600">
+              Search
+            </Button>
           </div>
         </div>
 
@@ -185,9 +189,9 @@ const Books = () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar - Hide on mobile by default */}
-          <div className="w-full lg:w-80 space-y-6">
+        <div className="flex gap-8">
+          {/* Filters Sidebar */}
+          <div className="w-80 space-y-6">
             <Card className="border-0 shadow-lg bg-white/80">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -277,10 +281,10 @@ const Books = () => {
           {/* Books Grid */}
           <div className="flex-1">
             {/* Sort and Results */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">{filteredBooks.length} books found</p>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full sm:w-48">
+                <SelectTrigger className="w-48">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -293,7 +297,7 @@ const Books = () => {
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
                   <Card key={i} className="animate-pulse">
                     <CardContent className="p-0">
@@ -308,7 +312,7 @@ const Books = () => {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredBooks.map((book) => (
                   <BookCard key={book.id} book={book} />
                 ))}

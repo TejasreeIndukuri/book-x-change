@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Book, BookFormData } from '@/types/book';
 
@@ -175,18 +176,4 @@ export const updateBook = async (
   if (updateError) {
     throw new Error('Failed to update book record');
   }
-};
-
-export const getBookById = async (bookId: string): Promise<Book> => {
-  const { data, error } = await supabase
-    .from('books')
-    .select('*')
-    .eq('id', bookId)
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to fetch book: ${error.message}`);
-  }
-
-  return data;
 };
