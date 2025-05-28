@@ -39,6 +39,34 @@ export const suggestPrice = (genre: string, condition: BookCondition): number =>
   return Math.round(basePrice * conditionMultiplier * 100) / 100;
 };
 
+export const calculatePriceSuggestion = (books: any[], genre: string, condition: BookCondition) => {
+  // Filter books by genre and condition
+  const similarBooks = books.filter(book => 
+    book.genre === genre && book.condition === condition
+  );
+
+  if (similarBooks.length === 0) {
+    // Fallback to suggested price
+    const suggested = suggestPrice(genre, condition);
+    return {
+      minPrice: Math.round((suggested * 0.8) * 100) / 100,
+      averagePrice: suggested,
+      maxPrice: Math.round((suggested * 1.2) * 100) / 100,
+    };
+  }
+
+  const prices = similarBooks.map(book => book.price);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const averagePrice = Math.round((prices.reduce((sum, price) => sum + price, 0) / prices.length) * 100) / 100;
+
+  return {
+    minPrice,
+    maxPrice,
+    averagePrice,
+  };
+};
+
 export const generateBookRecommendations = (userBooks: any[], allBooks: any[]) => {
   // Simple recommendation logic based on genres
   const userGenres = [...new Set(userBooks.map(book => book.genre))];
@@ -46,4 +74,22 @@ export const generateBookRecommendations = (userBooks: any[], allBooks: any[]) =
   return allBooks
     .filter(book => userGenres.includes(book.genre))
     .slice(0, 6);
+};
+
+export const getBookRecommendations = (allBooks: any[], currentBook: any) => {
+  // Find books with similar genre
+  const similarBooks = allBooks
+    .filter(book => 
+      book.id !== currentBook.id && 
+      book.genre === currentBook.genre
+    )
+    .slice(0, 5);
+
+  // Convert to recommendation format
+  return similarBooks.map(book => ({
+    id: book.id,
+    title: book.title,
+    genre: book.genre,
+    similarity: Math.floor(Math.random() * 20) + 80, // Random similarity between 80-100%
+  }));
 };
