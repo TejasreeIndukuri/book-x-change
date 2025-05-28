@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,7 +15,7 @@ import { getUserProfile, upsertUserProfile } from "@/services/userService";
 import { getUserBooks } from "@/services/bookService";
 import { getSentExchangeRequests, getReceivedExchangeRequests } from "@/services/exchangeService";
 import { Book } from "@/types/book";
-import { UserProfile } from "@/types/user";
+import { UserProfile } from "@/services/userService";
 import { ExchangeRequest } from "@/types/exchange";
 import { 
   User, 
@@ -65,7 +64,7 @@ const Profile = () => {
       setProfile(userProfile);
       
       if (userProfile) {
-        setDisplayName(userProfile.displayName || "");
+        setDisplayName(userProfile.display_name || "");
         setBio(userProfile.bio || "");
       }
       
@@ -168,9 +167,9 @@ const Profile = () => {
               <div className="flex items-end space-x-6">
                 <div className="relative">
                   <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                    <AvatarImage src={profile?.photoURL || ""} alt={profile?.displayName || "User"} />
+                    <AvatarImage src={profile?.photo_url || ""} alt={profile?.display_name || "User"} />
                     <AvatarFallback className="text-2xl bg-blue-100 text-blue-600">
-                      {profile?.displayName?.charAt(0) || user?.email?.charAt(0) || "U"}
+                      {profile?.display_name?.charAt(0) || user?.email?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
                   {isOwnProfile && isEditing && (
@@ -190,7 +189,7 @@ const Profile = () => {
                     />
                   ) : (
                     <h1 className="text-3xl font-bold text-gray-900">
-                      {profile?.displayName || "User"}
+                      {profile?.display_name || "User"}
                     </h1>
                   )}
                   <div className="flex items-center space-x-4 mt-2 text-gray-600">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +27,7 @@ const ExchangeRequestCard = ({ request, type, onRefresh }: ExchangeRequestCardPr
       try {
         const userId = type === "sent" ? request.receiverId : request.senderId;
         const profile = await getUserProfile(userId);
-        setOtherUserName(profile?.displayName || "User");
+        setOtherUserName(profile?.display_name || "User");
       } catch (error) {
         console.error("Error loading user profile:", error);
       }

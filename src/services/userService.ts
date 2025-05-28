@@ -42,6 +42,40 @@ export const updateUserProfile = async (
   }
 };
 
+export const upsertUserProfile = async (
+  userId: string,
+  updates: { displayName?: string; bio?: string },
+  imageFile?: File | null
+): Promise<void> => {
+  let photoUrl = undefined;
+
+  // Upload profile image if provided
+  if (imageFile) {
+    photoUrl = await uploadProfileImage(userId, imageFile);
+  }
+
+  const profileUpdates: any = {
+    display_name: updates.displayName,
+    bio: updates.bio,
+  };
+
+  if (photoUrl) {
+    profileUpdates.photo_url = photoUrl;
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({
+      id: userId,
+      ...profileUpdates,
+      updated_at: new Date().toISOString(),
+    });
+
+  if (error) {
+    throw new Error('Failed to update profile');
+  }
+};
+
 export const uploadProfileImage = async (
   userId: string, 
   imageFile: File
