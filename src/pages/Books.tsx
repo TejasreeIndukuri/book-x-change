@@ -9,10 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { BookOpen, Search, Filter, Heart, ShoppingCart, User, Home } from "lucide-react";
+import { BookOpen, Search, Filter, Heart, ShoppingCart, User, Home, Star } from "lucide-react";
 import { getAllBooks } from "@/services/bookService";
 import { Book } from "@/types/book";
 import { toast } from "sonner";
+import BookCard from "@/components/BookCard";
 
 const Books = () => {
   const { user } = useAuth();
@@ -23,11 +24,15 @@ const Books = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("relevance");
 
   const conditions = ["New", "Like New", "Very Good", "Good", "Acceptable"];
-  const categories = ["Fiction", "Non-Fiction", "Mystery", "Fantasy", "Romance", "Science Fiction"];
+  const genres = [
+    "Fiction", "Non-Fiction", "Mystery", "Fantasy", "Romance", "Science Fiction", 
+    "Biography", "History", "Self-Help", "Business", "Technology", "Health", 
+    "Travel", "Cooking", "Art", "Music", "Sports", "Children's", "Young Adult"
+  ];
 
   useEffect(() => {
     loadBooks();
@@ -35,7 +40,7 @@ const Books = () => {
 
   useEffect(() => {
     filterBooks();
-  }, [books, searchTerm, priceRange, selectedConditions, selectedCategories, sortBy]);
+  }, [books, searchTerm, priceRange, selectedConditions, selectedGenres, sortBy]);
 
   const loadBooks = async () => {
     try {
@@ -54,9 +59,9 @@ const Books = () => {
                            book.author.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesPrice = book.price >= priceRange[0] && book.price <= priceRange[1];
       const matchesCondition = selectedConditions.length === 0 || selectedConditions.includes(book.condition);
-      const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(book.genre);
+      const matchesGenre = selectedGenres.length === 0 || selectedGenres.includes(book.genre);
       
-      return matchesSearch && matchesPrice && matchesCondition && matchesCategory;
+      return matchesSearch && matchesPrice && matchesCondition && matchesGenre;
     });
 
     // Sort books
@@ -80,6 +85,17 @@ const Books = () => {
       default: return "bg-gray-500";
     }
   };
+
+  const featuredGenres = [
+    { name: "Fiction", icon: "📚", color: "bg-blue-100 text-blue-800" },
+    { name: "Non-Fiction", icon: "📖", color: "bg-green-100 text-green-800" },
+    { name: "Mystery", icon: "🔍", color: "bg-purple-100 text-purple-800" },
+    { name: "Fantasy", icon: "🐉", color: "bg-pink-100 text-pink-800" },
+    { name: "Romance", icon: "💕", color: "bg-red-100 text-red-800" },
+    { name: "Science Fiction", icon: "🚀", color: "bg-indigo-100 text-indigo-800" },
+    { name: "Biography", icon: "👤", color: "bg-yellow-100 text-yellow-800" },
+    { name: "History", icon: "🏛️", color: "bg-amber-100 text-amber-800" },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-mint-50">
@@ -146,6 +162,33 @@ const Books = () => {
           </div>
         </div>
 
+        {/* Genre Categories */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Browse by Genre</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {featuredGenres.map((genre) => (
+              <Card 
+                key={genre.name}
+                className="cursor-pointer hover:shadow-lg transition-shadow bg-white/80 backdrop-blur-sm border-0"
+                onClick={() => {
+                  if (selectedGenres.includes(genre.name)) {
+                    setSelectedGenres(selectedGenres.filter(g => g !== genre.name));
+                  } else {
+                    setSelectedGenres([...selectedGenres, genre.name]);
+                  }
+                }}
+              >
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl mb-2">{genre.icon}</div>
+                  <Badge variant="secondary" className={`${genre.color} text-xs font-medium`}>
+                    {genre.name}
+                  </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
         <div className="flex gap-8">
           {/* Filters Sidebar */}
           <div className="w-80 space-y-6">
@@ -196,24 +239,24 @@ const Books = () => {
                   </div>
                 </div>
 
-                {/* Categories */}
+                {/* All Genres */}
                 <div>
-                  <h3 className="font-medium mb-3">Categories</h3>
-                  <div className="space-y-2">
-                    {categories.map((category) => (
-                      <div key={category} className="flex items-center space-x-2">
+                  <h3 className="font-medium mb-3">All Genres</h3>
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {genres.map((genre) => (
+                      <div key={genre} className="flex items-center space-x-2">
                         <Checkbox
-                          id={category}
-                          checked={selectedCategories.includes(category)}
+                          id={genre}
+                          checked={selectedGenres.includes(genre)}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setSelectedCategories([...selectedCategories, category]);
+                              setSelectedGenres([...selectedGenres, genre]);
                             } else {
-                              setSelectedCategories(selectedCategories.filter(c => c !== category));
+                              setSelectedGenres(selectedGenres.filter(g => g !== genre));
                             }
                           }}
                         />
-                        <label htmlFor={category} className="text-sm">{category}</label>
+                        <label htmlFor={genre} className="text-sm">{genre}</label>
                       </div>
                     ))}
                   </div>
@@ -224,7 +267,7 @@ const Books = () => {
                   className="w-full"
                   onClick={() => {
                     setSelectedConditions([]);
-                    setSelectedCategories([]);
+                    setSelectedGenres([]);
                     setPriceRange([0, 100]);
                     setSearchTerm("");
                   }}
@@ -271,41 +314,7 @@ const Books = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredBooks.map((book) => (
-                  <Card key={book.id} className="group hover:shadow-xl transition-shadow duration-300 border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-                    <CardContent className="p-0">
-                      <div className="relative">
-                        <img
-                          src={book.imageUrl}
-                          alt={book.title}
-                          className="w-full h-64 object-cover rounded-t-lg"
-                        />
-                        <Badge 
-                          className={`absolute top-3 right-3 text-white ${getConditionColor(book.condition)}`}
-                        >
-                          {book.condition}
-                        </Badge>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="absolute top-3 left-3 bg-white/80 hover:bg-white text-gray-700 hover:text-red-500"
-                        >
-                          <Heart className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="p-4">
-                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">{book.title}</h3>
-                        <p className="text-gray-600 text-sm mb-2">{book.author}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-2xl font-bold text-blue-600">${book.price}</span>
-                          <Button size="sm" className="bg-blue-500 hover:bg-blue-600">
-                            <ShoppingCart className="h-4 w-4 mr-1" />
-                            Add to Cart
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <BookCard key={book.id} book={book} />
                 ))}
               </div>
             )}
@@ -319,7 +328,7 @@ const Books = () => {
                   <Button 
                     onClick={() => {
                       setSelectedConditions([]);
-                      setSelectedCategories([]);
+                      setSelectedGenres([]);
                       setPriceRange([0, 100]);
                       setSearchTerm("");
                     }}

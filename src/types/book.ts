@@ -1,5 +1,5 @@
 
-export type BookCondition = 'new' | 'like-new' | 'good' | 'fair' | 'poor';
+export type BookCondition = 'New' | 'Like New' | 'Very Good' | 'Good' | 'Acceptable';
 
 export interface Book {
   id: string;

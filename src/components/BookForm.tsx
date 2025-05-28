@@ -16,16 +16,26 @@ interface BookFormProps {
 }
 
 const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<BookFormData>({
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<BookFormData>({
     defaultValues: initialData
   });
   const [imageFile, setImageFile] = React.useState<File | null>(null);
   const [selectedGenre, setSelectedGenre] = useState(initialData?.genre || '');
-  const [selectedCondition, setSelectedCondition] = useState<BookCondition>(initialData?.condition || 'good');
+  const [selectedCondition, setSelectedCondition] = useState<BookCondition>(initialData?.condition || 'Good');
 
-  const conditions: BookCondition[] = ['new', 'like-new', 'good', 'fair', 'poor'];
+  const conditions: BookCondition[] = ['New', 'Like New', 'Very Good', 'Good', 'Acceptable'];
+  const genres = [
+    "Fiction", "Non-Fiction", "Mystery", "Fantasy", "Romance", "Science Fiction", 
+    "Biography", "History", "Self-Help", "Business", "Technology", "Health", 
+    "Travel", "Cooking", "Art", "Music", "Sports", "Children's", "Young Adult"
+  ];
 
   const onFormSubmit = async (data: BookFormData) => {
+    if (!imageFile && !initialData) {
+      toast.error('Please select an image for your book');
+      return;
+    }
+    
     try {
       await onSubmit(data, imageFile);
       toast.success('Book saved successfully!');
@@ -53,25 +63,50 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
       </div>
 
       <div>
-        <Input 
-          {...register('genre', { required: 'Genre is required' })}
-          placeholder="Genre"
-          onChange={(e) => setSelectedGenre(e.target.value)}
-        />
+        <Select 
+          value={selectedGenre}
+          onValueChange={(value) => {
+            setSelectedGenre(value);
+            setValue('genre', value);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select Genre" />
+          </SelectTrigger>
+          <SelectContent>
+            {genres.map((genre) => (
+              <SelectItem key={genre} value={genre}>
+                {genre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <input type="hidden" {...register('genre', { required: 'Genre is required' })} />
         {errors.genre && <p className="text-red-500 text-sm">{errors.genre.message}</p>}
       </div>
 
-      <select 
-        {...register('condition')}
-        className="w-full rounded-md border p-2"
-        onChange={(e) => setSelectedCondition(e.target.value as BookCondition)}
-      >
-        {conditions.map((condition) => (
-          <option key={condition} value={condition}>
-            {condition.charAt(0).toUpperCase() + condition.slice(1)}
-          </option>
-        ))}
-      </select>
+      <div>
+        <Select 
+          value={selectedCondition}
+          onValueChange={(value) => {
+            setSelectedCondition(value as BookCondition);
+            setValue('condition', value as BookCondition);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select Condition" />
+          </SelectTrigger>
+          <SelectContent>
+            {conditions.map((condition) => (
+              <SelectItem key={condition} value={condition}>
+                {condition}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <input type="hidden" {...register('condition', { required: 'Condition is required' })} />
+        {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+      </div>
 
       {selectedGenre && selectedCondition && (
         <PriceSuggestion
@@ -83,11 +118,13 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
       <div>
         <Input 
           type="number"
+          step="0.01"
           {...register('price', { 
             required: 'Price is required',
-            min: { value: 0, message: 'Price must be positive' }
+            min: { value: 0, message: 'Price must be positive' },
+            valueAsNumber: true
           })}
-          placeholder="Price"
+          placeholder="Price ($)"
         />
         {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
       </div>
@@ -95,7 +132,8 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
       <div>
         <Textarea 
           {...register('description')}
-          placeholder="Book Description"
+          placeholder="Book Description (condition details, any notes, etc.)"
+          rows={4}
         />
       </div>
 
@@ -104,10 +142,16 @@ const BookForm = ({ initialData, onSubmit, buttonText }: BookFormProps) => {
           type="file"
           accept="image/*"
           onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+          required={!initialData}
         />
+        {!initialData && !imageFile && (
+          <p className="text-sm text-gray-500 mt-1">Please upload a clear photo of your book</p>
+        )}
       </div>
 
-      <Button type="submit">{buttonText}</Button>
+      <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600">
+        {buttonText}
+      </Button>
     </form>
   );
 };

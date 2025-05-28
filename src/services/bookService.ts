@@ -59,11 +59,11 @@ export const getUserBooks = async (userId: string): Promise<Book[]> => {
     title: book.title,
     author: book.author,
     genre: book.genre,
-    condition: book.condition,
+    condition: book.condition as any,
     price: book.price,
     description: book.description,
     imageUrl: book.image_url,
-    createdAt: book.created_at,
+    createdAt: new Date(book.created_at),
   }));
 };
 
@@ -83,11 +83,11 @@ export const getAllBooks = async (): Promise<Book[]> => {
     title: book.title,
     author: book.author,
     genre: book.genre,
-    condition: book.condition,
+    condition: book.condition as any,
     price: book.price,
     description: book.description,
     imageUrl: book.image_url,
-    createdAt: book.created_at,
+    createdAt: new Date(book.created_at),
   }));
 };
 

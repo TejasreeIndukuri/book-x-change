@@ -1,76 +1,68 @@
 
-import { db, storage } from '@/lib/firebase';
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs
-} from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { UserProfile } from '@/types/user';
+import { supabase } from '@/integrations/supabase/client';
 
-const USERS_COLLECTION = 'users';
+export interface UserProfile {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  display_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  photo_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
-// Create or update a user profile
-export const upsertUserProfile = async (userId: string, userData: Partial<UserProfile>, profileImage?: File): Promise<void> => {
-  const userRef = doc(db, USERS_COLLECTION, userId);
-  const userSnap = await getDoc(userRef);
-  
-  let photoURL = userData.photoURL;
-  
-  // If a profile image was provided, upload it to Firebase Storage
-  if (profileImage) {
-    const imageRef = ref(storage, `users/${userId}/profile-${Date.now()}`);
-    await uploadBytes(imageRef, profileImage);
-    photoURL = await getDownloadURL(imageRef);
-  }
-  
-  const updatedUserData = {
-    ...userData,
-    ...(photoURL && { photoURL }),
-  };
-  
-  if (!userSnap.exists()) {
-    // Create new user profile
-    await setDoc(userRef, {
-      ...updatedUserData,
-      id: userId,
-      createdAt: new Date(),
-    });
-  } else {
-    // Update existing profile
-    await updateDoc(userRef, updatedUserData);
-  }
-};
-
-// Get a user profile by ID
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
-  const userRef = doc(db, USERS_COLLECTION, userId);
-  const userSnap = await getDoc(userRef);
-  
-  if (userSnap.exists()) {
-    return userSnap.data() as UserProfile;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
   }
-  
-  return null;
+
+  return data;
 };
 
-// Get user profiles by array of IDs
-export const getUserProfiles = async (userIds: string[]): Promise<{[key: string]: UserProfile}> => {
-  const users: {[key: string]: UserProfile} = {};
-  
-  const uniqueIds = [...new Set(userIds)];
-  
-  for (const userId of uniqueIds) {
-    const profile = await getUserProfile(userId);
-    if (profile) {
-      users[userId] = profile;
-    }
+export const updateUserProfile = async (
+  userId: string, 
+  updates: Partial<UserProfile>
+): Promise<void> => {
+  const { error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', userId);
+
+  if (error) {
+    throw new Error('Failed to update profile');
   }
-  
-  return users;
+};
+
+export const uploadProfileImage = async (
+  userId: string, 
+  imageFile: File
+): Promise<string> => {
+  const fileExt = imageFile.name.split('.').pop();
+  const fileName = `${userId}.${fileExt}`;
+  const filePath = `profile-images/${fileName}`;
+
+  // Upload image
+  const { error: uploadError } = await supabase.storage
+    .from('profiles')
+    .upload(filePath, imageFile, { upsert: true });
+
+  if (uploadError) {
+    throw new Error('Failed to upload profile image');
+  }
+
+  // Get public URL
+  const { data } = supabase.storage
+    .from('profiles')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
 };
